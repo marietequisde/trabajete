@@ -18,11 +18,10 @@ const visualizarMapa = {
     },
 
     template: `
-
-    <div class="">
     <h3>Seleccione un parking: </h3>
     <div class="dropdown">
     <button type="button" @click="menuAbierto = !menuAbierto" class="dropdown-toggle">Seleccionar</button>
+    <div class="desplegable">
         <ul v-if="menuAbierto" style="list-style-type:none" class="dropdown-menu d-block">
             <li v-for="parking in listaParking" :key="parking.id">
             <button class="dropdown-item" @click="menuAbierto = false; dibujarParking(parking.id)">

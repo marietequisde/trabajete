@@ -9,10 +9,11 @@ const estadisticas = {
         }
     },
     template: `
-    <div class="">
-        <h3>Seleccione un parking: </h3>
-        <div class="dropdown">
-            <button type="button" @click="menuAbierto = !menuAbierto" class="dropdown-toggle">Seleccionar</button>
+    
+    <h3>Seleccione un parking: </h3>
+    <div class="dropdown">
+        <button type="button" @click="menuAbierto = !menuAbierto" class="dropdown-toggle">Seleccionar</button>
+        <div class="desplegable">
             <ul v-if="menuAbierto" style="list-style-type:none" class="dropdown-menu d-block">
                 <li v-for="parking in listaParking" :key="parking.id">
                 <button class="dropdown-item" @click="menuAbierto = false; obtenerEstadisticas(parking.id)">
@@ -22,7 +23,8 @@ const estadisticas = {
             </ul>
         </div>
     </div>
-    <div>
+
+    <div class="graficos">
         <h2 v-if="chartBarras">Semanal</h2>
         <canvas id="graficoBarras"></canvas>
 
@@ -111,8 +113,21 @@ const estadisticas = {
                 options: {
                     responsive: true,
                     scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 20
+                                }
+                            }
+                        },
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 20
+                                }
+                            }
                         }
                     }
                 }
