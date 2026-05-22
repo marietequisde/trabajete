@@ -78,8 +78,8 @@ const visualizarMapa = {
             const self = this;
 
             var socket = new SockJS('http://localhost:8080/ws');
-            stompClient = Stomp.over(socket);  
-            stompClient.connect({}, function(frame) {
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
                 stompClient.subscribe('/topic/parking/' + self.idParking, (respuesta) => {
                     console.log("holaaa")
@@ -132,9 +132,14 @@ const visualizarMapa = {
         },
 
         async liberarPlaza(idPlaza) {
+            const usuario = localStorage.getItem('usuario');
+            const contrasena = localStorage.getItem('contraseña');
+            const codigoParking = this.parking.idParking;
 
             try {
-                const liberar = await fetch("http://localhost:8080/plaza/liberar/" + idPlaza);
+                const liberar = await fetch(`http://localhost:8080/plaza/liberar/${this.idPlaza}?email=${usuario}&clave=${contrasena}`,
+                    { method: 'PATCH' }
+                );
                 if (liberar.ok) {
                     this.selectLiberar = false;
                     alert("Plaza liberada.");
