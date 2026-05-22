@@ -1,3 +1,5 @@
+let suscripcionActiva = null;
+
 const visualizarMapa = {
     data(){
         return{
@@ -10,7 +12,8 @@ const visualizarMapa = {
             tipoCoche: "",
             selectOcupar: false,
             selectLiberar: false,
-            idParking: ""
+            idParking: "",
+            stompClient: null
         }
     },
 
@@ -32,18 +35,18 @@ const visualizarMapa = {
 
     <div v-if='parking.direccion'>
     <p><strong>Horario: {{parking.horario}} </strong></p>
-    <p><strong>Horario: {{parking.direccion}} </strong></p>
+    <p><strong>Dirección: {{parking.direccion}} </strong></p>
         <div class="parking" >
             <div v-for="(fila, iFilaPlazas) in parking.plazas" :key="'fila-'+ iFilaPlazas">
                 <div v-for="(plaza, iPlaza) in fila" :key="plaza ? 'plaza-' + plaza.idPlaza : 'nula-' + iFilaPlazas + '-' + iPlaza">
                 
                     <div v-if="plaza">
                         <div v-if="plaza.libre === false">
-                            <button v-on:click="idPlaza = plaza.idPlaza; selectLiberar = true" class="plaza ocupada"></button>
+                            <button v-on:click="idPlaza = plaza.idPlaza; selectLiberar = true; selectOcupar = false" class="plaza ocupada"></button>
                         </div>
 
                         <div v-else-if="plaza.libre === true">
-                            <button v-on:click="idPlaza = plaza.idPlaza; selectOcupar = true" class="plaza libre"></button>
+                            <button v-on:click="idPlaza = plaza.idPlaza; selectOcupar = true; selectLiberar = false" class="plaza libre"></button>
                         </div>
                     </div>
                     <div v-else-if="plaza === null">
@@ -61,15 +64,57 @@ const visualizarMapa = {
                 <button type="button" class="btn btn-primary" 
                 v-on:click="ocuparPlaza(idPlaza); selectOcupar = false">Ocupar Plaza</button>
         </div>
-            <div v-if="selectLiberar == true">
-                <button type="button" class="btn btn-primary"
-                v-on:click="liberarPlaza(idPlaza)">Liberar plaza</button>
-            </div>
+        <div v-if="selectLiberar == true">
+            <button type="button" class="btn btn-primary"
+            v-on:click="liberarPlaza(idPlaza)">Liberar plaza</button>
+        </div>
 
     </div>
     `,
 
     methods: {
+
+        suscribirseAlParking(idParking) {
+            const self = this;
+
+            if (suscripcionActiva) {
+                suscripcionActiva.unsubscribe();
+            }
+
+            if (self.stompClient && self.stompClient.connected) {
+                
+                const rutaCanal = `/topic/parking/${idParking}`;
+                console.log("Suscribiéndose al canal:", rutaCanal);
+
+                suscripcionActiva = self.stompClient.subscribe(rutaCanal, function(messageOutput) {
+                    const parkingActualizado = JSON.parse(messageOutput.body);
+                    console.log("¡Datos recibidos por WebSocket!", parkingActualizado);
+                    
+                    self.parking = parkingActualizado; 
+                });
+            }
+        },
+
+        conectarWebSocket() {
+            const self = this;
+    
+            const socket = new SockJS('http://localhost:8081/ws ');
+            self.stompClient = StompJs.Stomp.over(socket);
+
+            self.stompClient.debug = function (str) {}; 
+
+            self.stompClient.connect({}, (frame) => {
+                self.stompClient.subscribe('/tema/cambios', (respuesta) => {
+                const idParkingCambiado = respuesta.body;
+                    if (self.idParking) {
+                    self.suscribirseAlParking(self.idParking);
+                    }
+                });
+            }, (error) => {
+            console.error("Error en la conexión WebSocket: ", error);
+            }); 
+        },
+
         async leerParkings() {
             let continuar = true;
             try{
@@ -96,6 +141,8 @@ const visualizarMapa = {
                 if(obtenerParking.ok){
                     const parkingJson = await obtenerParking.json();
                     this.parking = parkingJson;
+                    this.idParking = idParking;
+                    this.suscribirseAlParking(idParking);
                 }
                 else{
                     alert("Error mostrando parking.")
@@ -128,15 +175,22 @@ const visualizarMapa = {
 
         async ocuparPlaza(idPlaza){
 
+            const usuario = localStorage.getItem('usuario');
+            const contrasena = localStorage.getItem('contraseña');
+            const codigoParking = this.parking.idParking;
+
             try{
-                const ocuparPlaza = await fetch(`http://localhost:8081/plaza/ocupar/${idPlaza}?matricula=${this.matricula}&idTipoVehiculo=${this.tipoCoche}`);
+                const ocuparPlaza = await fetch(`http://localhost:8081/plaza/ocupar/${this.idPlaza}?email=${usuario}&clave=${contrasena}&matricula=${this.matricula}&idTipoVehiculo=${this.tipoCoche}`, 
+                    {method: 'PATCH'}
+                );
 
                     if(ocuparPlaza.ok){
                         this.selectOcupar = false;
                         alert("Has ocupado esta plaza");
-                        idPlaza = "";
-                        matricula = "";
-                        tipoCoche = "";
+                        this.idPlaza = "";
+                        this.matricula = "";
+                        this.tipoCoche = "";
+
                     }
                     else{
                         alert("No has podido ocupar la plaza");
@@ -147,7 +201,13 @@ const visualizarMapa = {
                 console.error("Error de conexión: ", error);
                 alert("Error de conexión.")
             }
-        }
+
+        },
+
+        mounted() {
+        this.leerParkings();
+        this.conectarWebSocket();
+    }
     },
 
     mounted(){

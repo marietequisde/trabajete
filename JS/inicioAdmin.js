@@ -21,8 +21,8 @@ const administracion = {
     `,
     methods: {
         IniciarSesion(){
-            const usuarioValido = "Admin1";
-            const contrasenaValida = "1234"
+            const usuarioValido = "admin1@parking.com";
+            const contrasenaValida = "pass1234"
 
             if (this.Usuario == usuarioValido && this.Contrasena == contrasenaValida){
                 this.$emit("sesion_iniciada");
@@ -30,6 +30,8 @@ const administracion = {
             else{
                 alert("Usuario o contraseña incorrectos")
             }
+            localStorage.setItem('usuario', usuarioValido);
+            localStorage.setItem('contraseña', contrasenaValida);
         }   
     }
 };

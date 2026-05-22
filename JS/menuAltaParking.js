@@ -87,6 +87,8 @@ const alta_parking = {
 
             let datosEnviar = new FormData();
 
+            datosEnviar.append("email", localStorage.getItem('usuario'));
+            datosEnviar.append("clave", localStorage.getItem('contraseña'));
             datosEnviar.append("direccion", this.inputDireccion);
             datosEnviar.append("horario", this.inputHorario);
             datosEnviar.append("fichero", this.archivoParking);
