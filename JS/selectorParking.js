@@ -76,7 +76,7 @@ const visualizarMapa = {
         conectarWebSocket() {
             const self = this;
 
-            var socket = new SockJS('http://localhost:8080/ws');
+            var socket = new SockJS('http://localhost:8081/ws');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 console.log('Connected: ' + frame);
@@ -93,7 +93,7 @@ const visualizarMapa = {
         async leerParkings() {
             let continuar = true;
             try {
-                const datosDeBack = await fetch("http://localhost:8080/parking");
+                const datosDeBack = await fetch("http://localhost:8081/parking");
 
                 if (datosDeBack.ok) {
                     const respuesta = await datosDeBack.json();
@@ -112,7 +112,7 @@ const visualizarMapa = {
         async dibujarParking(idParking) {
 
             try {
-                const obtenerParking = await fetch("http://localhost:8080/parking/" + idParking);
+                const obtenerParking = await fetch("http://localhost:8081/parking/" + idParking);
                 if (obtenerParking.ok) {
                     const parkingJson = await obtenerParking.json();
                     this.parking = parkingJson;
@@ -136,7 +136,7 @@ const visualizarMapa = {
             const codigoParking = this.parking.idParking;
 
             try {
-                const liberar = await fetch(`http://localhost:8080/plaza/liberar/${this.idPlaza}?email=${usuario}&clave=${contrasena}`,
+                const liberar = await fetch(`http://localhost:8081/plaza/liberar/${this.idPlaza}?email=${usuario}&clave=${contrasena}`,
                     { method: 'PATCH' }
                 );
                 if (liberar.ok) {
@@ -161,7 +161,7 @@ const visualizarMapa = {
             const codigoParking = this.parking.idParking;
 
             try {
-                const ocuparPlaza = await fetch(`http://localhost:8080/plaza/ocupar/${this.idPlaza}?email=${usuario}&clave=${contrasena}&matricula=${this.matricula}&idTipoVehiculo=${this.tipoCoche}`,
+                const ocuparPlaza = await fetch(`http://localhost:8081/plaza/ocupar/${this.idPlaza}?email=${usuario}&clave=${contrasena}&matricula=${this.matricula}&idTipoVehiculo=${this.tipoCoche}`,
                     { method: 'PATCH' }
                 );
 

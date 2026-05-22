@@ -43,7 +43,7 @@ const estadisticas = {
             const usuario = localStorage.getItem('usuario');
             const contrasena = localStorage.getItem('contraseña');
             try {
-                const datosDeBack = await fetch(`http://localhost:8080/registro/semanal/${idParking}?email=${usuario}&clave=${contrasena}`);
+                const datosDeBack = await fetch(`http://localhost:8081/registro/semanal/${idParking}?email=${usuario}&clave=${contrasena}`);
 
                 if (datosDeBack.ok) {
                     const respuesta = await datosDeBack.json();
@@ -62,7 +62,7 @@ const estadisticas = {
             const usuario = localStorage.getItem('usuario');
             const contrasena = localStorage.getItem('contraseña');
             try {
-                const datosDeBack = await fetch(`http://localhost:8080/registro/vehiculos/${idParking}?email=${usuario}&clave=${contrasena}`);
+                const datosDeBack = await fetch(`http://localhost:8081/registro/vehiculos/${idParking}?email=${usuario}&clave=${contrasena}`);
 
                 if (datosDeBack.ok) {
                     const respuesta = await datosDeBack.json();
@@ -79,7 +79,7 @@ const estadisticas = {
 
         async leerParkings() {
             try {
-                const datosDeBack = await fetch("http://localhost:8080/parking");
+                const datosDeBack = await fetch("http://localhost:8081/parking");
 
                 if (datosDeBack.ok) {
                     const respuesta = await datosDeBack.json();
