@@ -94,7 +94,7 @@ const alta_parking = {
             datosEnviar.append("fichero", this.archivoParking);
 
             try{
-                const enviar = await fetch("http://localhost:8081/parking", {
+                const enviar = await fetch("http://localhost:8080/parking", {
                     method: 'POST',
                     body: datosEnviar
                 });
