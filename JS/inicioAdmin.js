@@ -16,22 +16,26 @@ const administracion = {
     <br>
     <input type="password" id="contrasena" name="contrasena" v-model="Contrasena"></input>
     <br><br>
-    <button class="btn btn-primary" @click='IniciarSesion'>Iniciar sesión</Button>
+    <button class="btn btn-primary" @click='iniciarSesion'>Iniciar sesión</Button>
     <br><br>
     `,
     methods: {
-        IniciarSesion(){
-            const usuarioValido = "";
-            const contrasenaValida = ""
+        async iniciarSesion(){
+            try {
+                const datosDeBack = await fetch(`http://localhost:8080/login?email=${this.Usuario}&clave=${this.Contrasena}`);
 
-            if (this.Usuario == usuarioValido && this.Contrasena == contrasenaValida){
-                this.$emit("sesion_iniciada");
+                if (datosDeBack.ok) {
+                    this.$emit("sesion_iniciada");
+                }
+                else {
+                    alert("Usuario o contraseña incorrectos")
+                }
             }
-            else{
-                alert("Usuario o contraseña incorrectos")
+            catch (error) {
+                console.error("Error de la conexion", error);
             }
-            localStorage.setItem('usuario', "admin1@parking.com");
-            localStorage.setItem('contraseña', "pass1234");
+            localStorage.setItem('usuario', this.Usuario);
+            localStorage.setItem('contraseña', this.Contrasena);
         }   
     }
 };
